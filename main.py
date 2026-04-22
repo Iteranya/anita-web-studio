@@ -29,6 +29,7 @@ from routes import (
     aina_route,
     asta_route,
     auth_route,
+    api_route,
     file_route,
     collections_route,
     media_route,
@@ -162,6 +163,7 @@ api_router = APIRouter()
 api_router.include_router(admin_route.router, tags=["Admin"])
 api_router.include_router(dashboard_route.router, tags = ["Dashboard"])
 api_router.include_router(config_route.router, tags=["Config"])
+api_router.include_router(api_route.router, tags=["API Route"])
 api_router.include_router(aina_route.router, tags=["Aina"])
 api_router.include_router(asta_route.router, tags=["Asta"])
 api_router.include_router(media_route.router, tags=["Media"])
@@ -184,4 +186,4 @@ if __name__ == "__main__":
     # Get port from command-line argument, default to 5469
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5469
     print(f"Starting server on http://127.0.0.1:{port}")
-    uvicorn.run("main:app", host="127.0.0.1", port=port, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=port, reload=False)

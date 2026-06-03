@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iteranya/anita-cms/main/docs/anitacms.png" alt="Anita CMS Logo" width="512">
+  <img width="512" height="768" alt="Anita" src="https://github.com/user-attachments/assets/9b91176f-8f41-4e5c-8fe3-76940503d540" />
+
   <br><br>
   <a href="https://www.gnu.org/licenses/agpl-3.0">
     <img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3">

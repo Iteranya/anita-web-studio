@@ -91,6 +91,24 @@ class PocketBaseFileClient:
                 {"name": "size",          "type": "number",   "required": False},
                 {"name": "format",        "type": "text",     "required": False},
                 {"name": "file",          "type": "file",     "required": False, "options": {"maxSelect": 1, "maxSize": 20971520}},
+                
+                # --- Updated Autodate Fields ---
+                {
+                    "name": "created",       
+                    "type": "autodate",     
+                    "options": {
+                        "onCreate": True,
+                        "onUpdate": False
+                    }
+                },
+                {
+                    "name": "updated",       
+                    "type": "autodate",     
+                    "options": {
+                        "onCreate": True,
+                        "onUpdate": True
+                    }
+                },
             ],
         }
         await client.post(

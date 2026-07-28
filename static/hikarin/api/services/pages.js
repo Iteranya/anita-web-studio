@@ -11,6 +11,17 @@ export class PagesAPI {
         );
     }
 
+    listMarkdown() {
+        return new ApiRequest(() =>
+            this._client._request("GET", "/page/list/markdown")
+        );
+    }
+    listHtml() {
+        return new ApiRequest(() =>
+            this._client._request("GET", "/page/list/html")
+        );
+    }
+
     get(slug) {
         return new ApiRequest(() =>
             this._client._request("GET", `/page/${slug}`)

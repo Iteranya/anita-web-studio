@@ -22,6 +22,10 @@ class PageService:
             )
         return page
 
+    def list_page_by_type(self, type:str, skip: int, limit: int) -> list[models.Page]:
+        """Gets a list of all pages."""
+        return crud.list_pages_by_type(self.db, type=type, skip=skip, limit=limit)
+
     def get_all_pages(self, skip: int, limit: int) -> list[models.Page]:
         """Gets a list of all pages."""
         return crud.list_pages(self.db, skip=skip, limit=limit)

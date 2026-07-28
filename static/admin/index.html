@@ -1,218 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anita Admin</title>
-    
-    <!-- Dependencies -->
-    <script src="/static/hikarin/lib/tailwind.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Core JS -->
-    <script defer src="/static/hikarin/lib/htmx.js"></script>
-    
-    <!-- Middleware -->
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anita CMS — Admin</title>
 
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class', 
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
-                    colors: {
-                        anita: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
-                    }
-                }
-            }
-        }
-    </script>
+  <!-- Tailwind + Fonts -->
+  <script src="/static/hikarin/lib/tailwind.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        [x-cloak] { display: none !important; }
-        #app-content { transition: opacity 0.2s ease-in-out; }
-        .htmx-swapping { opacity: 0; }
-        .htmx-settling { opacity: 1; }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Nunito', 'sans-serif'] },
+          colors: {
+            anita: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+          }
         }
-    </style>
+      }
+    }
+  </script>
+
+  <style>
+    /* Active sidebar link */
+    .nav-active {
+      background-color: #0284c7 !important;
+      color: #fff !important;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    /* Sidebar transition */
+    #sidebar { transition: width 0.3s ease; }
+    /* Toast animation */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(0)  scale(1); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(40px); }
+    }
+    .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+    .toast-exit  { animation: slideOut 0.2s ease-in forwards; }
+  </style>
 </head>
 
-<body 
-    class="bg-slate-100 text-slate-800 font-sans h-screen overflow-hidden flex"
-    x-data="adminShell"
-    hx-boost="true"
->
+<body class="bg-slate-100 text-slate-800 font-sans h-screen overflow-hidden flex">
 
-    <!-- SIDEBAR -->
-    <aside 
-        class="bg-slate-900 text-white flex flex-col flex-shrink-0 transition-all duration-300 z-20"
-        :class="sidebarOpen ? 'w-64' : 'w-20'"
-    >
-        <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950 gap-3">
-        <img
-            src="/media/anita.webp"
-            class="h-10 w-auto object-contain"
-        />
-        <span class="font-bold text-lg tracking-wide" x-show="sidebarOpen" x-transition>
-            Anita CMS
-        </span>
-        </div>
-        <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
-            
-            <!-- Dashboard -->
-            <a href="/admin/dashboard" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/dashboard') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-home w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Dashboard</span>
-            </a>
-
-            <!-- Pages -->
-            <a href="/admin/page" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/page') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-layer-group w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Pages</span>
-            </a>
-
-            <!-- Structure -->
-            <a href="/admin/structure" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/structure') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-sitemap w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Structure</span>
-            </a>
-
-            <!-- Collections -->
-            <a href="/admin/collections" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/collections') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-inbox w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Collections </span>
-            </a>
-
-            <!-- Media -->
-            <a href="/admin/media" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/media') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-images w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Images</span>
-            </a>
-
-            <!-- Files -->
-            <a href="/admin/files" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/files') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-folder-open w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Files</span>
-            </a>
-
-            <div class="pt-4 pb-2" x-show="sidebarOpen">
-                <p class="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">System</p>
-            </div>
-
-            <!-- Users -->
-            <a href="/admin/users" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/users') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-users-cog w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Users</span>
-            </a>
-
-            <!-- Config -->
-            <a href="/admin/config" hx-target="#app-content" hx-swap="innerHTML"
-               class="flex items-center px-3 py-2.5 rounded-lg transition-colors group"
-               :class="isActive('/admin/config') ? 'bg-anita-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'">
-                <i class="fas fa-robot w-6 text-center text-lg"></i>
-                <span class="ml-3 font-medium whitespace-nowrap" x-show="sidebarOpen">Config</span>
-            </a>
-        </nav>
-        
-        <button @click="toggleSidebar" class="p-4 bg-slate-950 text-slate-500 hover:text-white border-t border-slate-800 transition">
-            <i class="fas" :class="sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
-        </button>
-    </aside>
-
-    <!-- CONTENT AREA -->
-    <main id="app-content" class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <!-- Initial Load Spinner -->
-        <div class="flex h-full items-center justify-center text-slate-400">
-            <i class="fas fa-circle-notch fa-spin text-3xl"></i>
-        </div>
-    </main>
-    <!-- NOTIFICATION CONTAINER -->
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
-        <template x-for="note in $store.notifications.items" :key="note.id">
-            <div 
-                x-show="true"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-2 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                x-transition:leave-end="opacity-0 translate-x-10 scale-95"
-                class="pointer-events-auto w-80 shadow-2xl rounded-xl overflow-hidden border border-slate-100 flex items-stretch transform"
-                :class="{
-                    'bg-white': true
-                }"
-            >
-                <!-- Color Strip & Icon -->
-                <div class="w-12 flex items-center justify-center flex-shrink-0"
-                     :class="{
-                        'bg-green-500 text-white': note.type === 'success',
-                        'bg-red-500 text-white': note.type === 'error',
-                        'bg-blue-500 text-white': note.type === 'info'
-                     }">
-                    <i class="fas text-lg"
-                       :class="{
-                           'fa-check': note.type === 'success',
-                           'fa-exclamation-triangle': note.type === 'error',
-                           'fa-info-circle': note.type === 'info'
-                       }"></i>
-                </div>
-
-                <!-- Content -->
-                <div class="flex-1 p-3 bg-white/95 backdrop-blur-sm">
-                    <div class="flex justify-between items-start">
-                        <h4 class="text-sm font-bold text-slate-800" x-text="note.title"></h4>
-                        <button @click="$store.notifications.remove(note.id)" class="text-slate-400 hover:text-slate-600 text-xs">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-1 leading-relaxed" x-text="note.message"></p>
-                </div>
-            </div>
-        </template>
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SIDEBAR                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <aside id="sidebar" class="bg-slate-900 text-white flex flex-col flex-shrink-0 w-64 transition-all duration-300 z-20">
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950 gap-3">
+      <img src="/media/anita.webp" class="h-10 w-auto object-contain" alt="Anita">
+      <span id="sidebar-brand" class="font-bold text-lg tracking-wide">Anita CMS</span>
     </div>
-    
-    <!-- INITIAL LOADER: If direct visit, load that view immediately -->
-    <script type="module" src="/static/admin/main.js"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // 1. Determine where we are
-        const path = window.location.pathname;
-        
-        // 2. Are we in a sub-page of admin? (e.g. /admin/users)
-        if(path.includes('/admin') && path.length > 7 && !path.includes('submissions')) {
-            
-            console.log("Hikarin: Restoring view for", path);
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
+      <a href="/admin/dashboard" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-dashboard">
+        <i class="fas fa-home w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Dashboard</span>
+      </a>
+      <a href="/admin/page" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-page">
+        <i class="fas fa-layer-group w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Pages</span>
+      </a>
+      <a href="/admin/structure" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-structure">
+        <i class="fas fa-sitemap w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Structure</span>
+      </a>
+      <a href="/admin/media" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-media">
+        <i class="fas fa-images w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Media</span>
+      </a>
 
-            const antiCacheUrl = path + "?t=" + Date.now();
-            
-            htmx.ajax('GET', antiCacheUrl, {
-                target: '#app-content', 
-                swap: 'innerHTML'
-            });
-        }
-    });
-</script>
+      <div class="pt-4 pb-2 sidebar-label">
+        <p class="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">System</p>
+      </div>
+
+      <a href="/admin/users" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-users">
+        <i class="fas fa-users-cog w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Users</span>
+      </a>
+      <a href="/admin/config" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-config">
+        <i class="fas fa-robot w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Config</span>
+      </a>
+    </nav>
+
+    <!-- Collapse button -->
+    <button id="sidebar-toggle" class="p-4 bg-slate-950 text-slate-500 hover:text-white border-t border-slate-800 transition">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  CONTENT                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <main id="app-content" class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <!-- VIEW_CONTENT -->
+  </main>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  TOAST CONTAINER                            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SCRIPTS                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Sidebar toggle + active state -->
+  <script>
+    (function () {
+      // Highlight active nav link
+      var activeTab = '<!-- ACTIVE_TAB -->';
+      var link = document.querySelector('.nav-' + activeTab);
+      if (link) link.classList.add('nav-active');
+
+      // Sidebar collapse
+      var sidebar = document.getElementById('sidebar');
+      var labels = document.querySelectorAll('.sidebar-label');
+      var brand = document.getElementById('sidebar-brand');
+      var toggle = document.getElementById('sidebar-toggle');
+      var icon = toggle ? toggle.querySelector('i') : null;
+      var open = true;
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          open = !open;
+          sidebar.style.width = open ? '16rem' : '5rem';
+          if (icon) {
+            icon.className = 'fas ' + (open ? 'fa-chevron-left' : 'fa-chevron-right');
+          }
+          if (brand) brand.style.display = open ? '' : 'none';
+          labels.forEach(function (l) { l.style.display = open ? '' : 'none'; });
+        });
+      }
+    })();
+  </script>
+
+  <!-- Toast notification system (listens for CustomEvent 'anita:toast') -->
+  <script>
+    (function () {
+      var container = document.getElementById('toast-container');
+      if (!container) return;
+
+      window.addEventListener('anita:toast', function (e) {
+        var detail = e.detail || {};
+        var type = detail.type || 'info';
+        var msg = detail.message || '';
+
+        var colors = {
+          success: { bg: 'bg-green-500', icon: 'fa-check' },
+          error:   { bg: 'bg-red-500',   icon: 'fa-exclamation-triangle' },
+          info:    { bg: 'bg-blue-500',  icon: 'fa-info-circle' }
+        };
+        var c = colors[type] || colors.info;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast-enter pointer-events-auto w-80 shadow-2xl rounded-xl overflow-hidden border border-slate-100 flex items-stretch bg-white';
+
+        var strip = document.createElement('div');
+        strip.className = c.bg + ' text-white w-12 flex items-center justify-center flex-shrink-0';
+        strip.innerHTML = '<i class="fas ' + c.icon + ' text-lg"></i>';
+
+        var body = document.createElement('div');
+        body.className = 'flex-1 p-3 bg-white/95 backdrop-blur-sm';
+
+        var title = document.createElement('h4');
+        title.className = 'text-sm font-bold text-slate-800';
+        title.textContent = type === 'success' ? 'Sukses' : (type === 'error' ? 'Error' : 'Info');
+
+        var p = document.createElement('p');
+        p.className = 'text-xs text-slate-500 mt-1 leading-relaxed';
+        p.textContent = msg;
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-xs';
+        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        closeBtn.onclick = function () { removeToast(toast); };
+
+        body.style.position = 'relative';
+        body.appendChild(title);
+        body.appendChild(p);
+        body.appendChild(closeBtn);
+
+        toast.appendChild(strip);
+        toast.appendChild(body);
+        container.appendChild(toast);
+
+        // Auto-remove after 5s
+        setTimeout(function () { removeToast(toast); }, 5000);
+      });
+
+      function removeToast(el) {
+        el.classList.add('toast-exit');
+        setTimeout(function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 200);
+      }
+    })();
+  </script>
+
 </body>
 </html>
+
+

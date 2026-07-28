@@ -1,53 +1,70 @@
-import Alpine from '/static/hikarin/lib/alpine.js';
-import sort from '/static/hikarin/lib/alpine-sort.js';
-import  collapse  from '/static/hikarin/lib/alpine-collapse.js';
+// ── View → required script mapping ──
+const VIEW_SCRIPTS = {
+  dashboard:   '/admin/js/views/dashboard.js',
+  page:        '/admin/js/views/page.js',
+  media:       '/admin/js/views/media.js',
+  users:       '/admin/js/views/users.js',
+  config:      '/admin/js/views/config.js',
+  structure:   '/admin/js/views/structure.js',
+};
 
-import { HikarinApi } from '../hikarin/api/client.js';
-import notificationsStore from '../hikarin/alpine/notifications.js'
-import schemaManager from './alpine/schemaManager.js';
-import dataManager from './alpine/dataManager.js';
-import pageManager from './alpine/pageManager.js'; 
-import userManager from './alpine/userManager.js';
-import mediaManager from './alpine/mediaManager.js';
-import collectionManager from './alpine/collectionManager.js';
-import configManager from './alpine/configManager.js';
-import fileManager from './alpine/fileManager.js';
-import submissionManager from './alpine/submissionManager.js';
-import adminShell from './alpine/adminShell.js';
-import dashboardManager from './alpine/dashboardManager.js';
-import structureManager from './alpine/structureManager.js';
+const loadedScripts = new Set();
 
-// 3. Initialize API
-const hikarinApi = new HikarinApi();
+// ── Load a script dynamically ──
+function loadScript(src) {
+  return new Promise((resolve) => {
+    if (loadedScripts.has(src)) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => { loadedScripts.add(src); resolve(); };
+    s.onerror = () => resolve(); // fail silently
+    document.head.appendChild(s);
+  });
+}
 
-// 4. Register the Sort plugin with Alpine
-// This MUST be done before Alpine.start()
-Alpine.plugin(sort);
-Alpine.plugin(collapse);
+// ── Get current view slug from URL ──
+function currentView() {
+  return window.location.pathname.split('/').pop() || 'dashboard';
+}
 
-// 5. Register Magic & Store
-Alpine.magic('api', () => hikarinApi);
-Alpine.store('notifications', notificationsStore);
+// ── SPA navigation (no page flash) ──
+async function navigate(slug) {
+  history.pushState({ slug }, '', `/admin/${slug}`);
 
-// 6. Register Components (x-data providers)
-Alpine.data('schemaManager', schemaManager);
-Alpine.data('dataManager', dataManager);
-Alpine.data('pageManager', pageManager);
-Alpine.data('structureManager', structureManager)
-Alpine.data('userManager', userManager);
-Alpine.data('mediaManager', mediaManager);
-Alpine.data('collectionManager', collectionManager);
-Alpine.data('configManager', configManager);
-Alpine.data('fileManager', fileManager);
-Alpine.data('submissionManager', submissionManager);
-Alpine.data('dashboardManager',dashboardManager);
-Alpine.data('adminShell', adminShell);
+  // Fetch view HTML
+  const res = await fetch(`/admin/views/${slug}.html`);
+  const html = await res.text();
+  document.querySelector('main').innerHTML = html;
 
-// 7. Make Alpine available globally (optional, for debugging)
-window.Alpine = Alpine;
+  // Highlight sidebar
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('bg-gray-800'));
+  const link = document.querySelector(`nav a[href="/admin/${slug}"]`);
+  if (link) link.classList.add('bg-gray-800');
 
-// 8. START ALPINE
-// This single call initializes Alpine and all registered plugins.
-Alpine.start();
+  // Load view script
+  if (VIEW_SCRIPTS[slug]) await loadScript(VIEW_SCRIPTS[slug]);
 
-console.log("Hikarin JS: Modules loaded and Alpine started correctly.");
+  // Dispatch event so view scripts can re-init
+  window.dispatchEvent(new CustomEvent('anita:view', { detail: { slug } }));
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  const slug = currentView();
+
+  // Intercept sidebar clicks
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('nav a[href^="/admin/"]');
+    if (!link) return;
+    e.preventDefault();
+    navigate(link.getAttribute('href').split('/').pop());
+  });
+
+  // Back/forward
+  window.addEventListener('popstate', (e) => {
+    if (e.state?.slug) navigate(e.state.slug);
+  });
+
+  // Load current view script
+  if (VIEW_SCRIPTS[slug]) loadScript(VIEW_SCRIPTS[slug]);
+});

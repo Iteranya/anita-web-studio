@@ -88,9 +88,9 @@
 
         // Redirect to editor
         if (type === 'html') {
-          window.location.href = '/admin/page?slug=' + encodeURIComponent(slug);
+          window.location.href = '/anita/page?slug=' + encodeURIComponent(slug);
         } else {
-          window.location.href = '/admin/page?slug=' + encodeURIComponent(slug);
+          window.location.href = '/anita/page?slug=' + encodeURIComponent(slug);
         }
       } catch (e) {
         alert('Gagal membuat: ' + e.message);
@@ -131,7 +131,7 @@
             <input type="checkbox" class="pm-checkbox" data-slug="${p.slug}">
           </td>
           <td class="p-3 font-medium">
-            <a href="/admin/page?slug=${encodeURIComponent(p.slug)}" class="text-cyan-600 hover:underline">
+            <a href="/anita/page?slug=${encodeURIComponent(p.slug)}" class="text-cyan-600 hover:underline">
               ${p.title || '(tanpa judul)'}
             </a>
             <div class="text-xs text-gray-400">/${p.slug}</div>

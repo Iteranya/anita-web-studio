@@ -1,11 +1,11 @@
 // ── View → required script mapping ──
 const VIEW_SCRIPTS = {
-  dashboard:   '/admin/js/views/dashboard.js',
-  page:        '/admin/js/views/page.js',
-  media:       '/admin/js/views/media.js',
-  users:       '/admin/js/views/users.js',
-  config:      '/admin/js/views/config.js',
-  structure:   '/admin/js/views/structure.js',
+  dashboard:   '/anita/js/views/dashboard.js',
+  page:        '/anita/js/views/page.js',
+  media:       '/anita/js/views/media.js',
+  users:       '/anita/js/views/users.js',
+  config:      '/anita/js/views/config.js',
+  structure:   '/anita/js/views/structure.js',
 };
 
 const loadedScripts = new Set();
@@ -29,16 +29,16 @@ function currentView() {
 
 // ── SPA navigation (no page flash) ──
 async function navigate(slug) {
-  history.pushState({ slug }, '', `/admin/${slug}`);
+  history.pushState({ slug }, '', `/anita/${slug}`);
 
   // Fetch view HTML
-  const res = await fetch(`/admin/views/${slug}.html`);
+  const res = await fetch(`/anita/views/${slug}.html`);
   const html = await res.text();
   document.querySelector('main').innerHTML = html;
 
   // Highlight sidebar
   document.querySelectorAll('nav a').forEach(a => a.classList.remove('bg-gray-800'));
-  const link = document.querySelector(`nav a[href="/admin/${slug}"]`);
+  const link = document.querySelector(`nav a[href="/anita/${slug}"]`);
   if (link) link.classList.add('bg-gray-800');
 
   // Load view script
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Intercept sidebar clicks
   document.addEventListener('click', (e) => {
-    const link = e.target.closest('nav a[href^="/admin/"]');
+    const link = e.target.closest('nav a[href^="/anita/"]');
     if (!link) return;
     e.preventDefault();
     navigate(link.getAttribute('href').split('/').pop());

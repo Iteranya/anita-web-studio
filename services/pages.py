@@ -35,7 +35,7 @@ class PageService:
         Creates a new page after performing business logic checks.
         """
         # 1. Check for forbidden slugs.
-        forbidden_slugs = {"admin", "api", "login", "static","blog"}
+        forbidden_slugs = {"admin", "api", "login", "static","blog", "anita"}
         if page_data.slug in forbidden_slugs:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

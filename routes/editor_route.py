@@ -54,7 +54,7 @@ async def aina_editor_view(
     Serves the Single Page Application for the Editor.
     """
     if not user:
-        return RedirectResponse(url=f"/auth/login?next=/wd-admin/", status_code=302)
+        return RedirectResponse(url=f"/auth/login?next=/anita/", status_code=302)
 
     # This will now correctly inject the slug
     return render_template(AINA_INDEX_PATH, {"slug": slug})

@@ -54,219 +54,432 @@
         </style>
     </head>
     <body>
-        <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Nunito', 'sans-serif'],
-                    },
-                    colors: {
-                        anita: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-<div>
-
-<!-- Background Blobs -->
-    <div class="blob bg-anita-300 w-96 h-96 top-0 left-0 -translate-x-1/2 -translate-y-1/2 animate-float"></div>
-    <div class="blob bg-purple-300 w-80 h-80 bottom-0 right-0 translate-x-1/3 translate-y-1/3 animate-float-delayed"></div>
-
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 glass-panel border-b border-gray-200/50 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
-                <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
-                    <img alt="Anita Logo" class="h-10 w-10 rounded-full border-2 border-anita-400 group-hover:scale-105 transition-transform" src="/media/anita.webp" onerror="this.src='https://ui-avatars.com/api/?name=Anita&background=0ea5e9&color=fff'"/>
-                    <span class="font-bold text-2xl text-anita-600 tracking-tight">Anita CMS</span>
-                </a>
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a class="text-gray-600 hover:text-anita-600 font-semibold transition" href="/">Home</a>
-                    <a class="text-anita-600 font-bold transition" href="#">Blog</a>
-                    <a class="text-gray-600 hover:text-anita-600 font-semibold transition" href="/#docs">Docs</a>
-                    <a class="bg-anita-500 hover:bg-anita-600 text-white px-5 py-2.5 rounded-full font-bold shadow-lg shadow-anita-200 transition transform hover:-translate-y-1" href="https://github.com/Iteranya/anita-cms" target="_blank">
-                        <i class="fab fa-github mr-2"></i> Get Anita
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Header Section -->
-    <header class="pt-32 pb-16 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
-                Latest <span class="text-transparent bg-clip-text bg-gradient-to-r from-anita-500 to-purple-600">Updates & Thoughts</span>
-            </h1>
-            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-                Explore tutorials, release notes, and deep dives into the lightweight world of Anita CMS.
-            </p>
-        </div>
-    </header>
-
-    <!-- Main Content with Alpine Data Binding -->
-    <main 
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 min-h-[60vh]"
-        x-data="blog_component(['any:read', 'main:blog'])"
-    >
-        
-        <!-- Search/Filter Input (Optional Addition) -->
-        <div class="max-w-md mx-auto mb-12 relative">
-            <input 
-                x-model="searchQuery" 
-                @keydown.enter="search()"
-                type="text" 
-                placeholder="Filter by label (e.g. 'tutorial')..." 
-                class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-anita-500 focus:ring-2 focus:ring-anita-200 outline-none transition shadow-sm bg-white/80 backdrop-blur"
-            >
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-        </div>
-
-        <!-- Loading State -->
-        <div x-show="isLoading" class="flex flex-col justify-center items-center py-20" x-transition>
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-anita-500 mb-4"></div>
-            <p class="text-anita-600 font-semibold animate-pulse">Fetching updates...</p>
-        </div>
-
-        <!-- Error State -->
-        <div x-show="error" x-cloak class="text-center py-20">
-            <div class="inline-block p-6 rounded-2xl bg-red-50 text-red-600 border border-red-100 shadow-sm">
-                <i class="fas fa-exclamation-circle mb-3 text-3xl"></i>
-                <p class="font-medium" x-text="error"></p>
-                <button @click="search()" class="mt-4 px-4 py-2 bg-white border border-red-200 rounded-lg text-sm font-bold hover:bg-red-50 transition shadow-sm">
-                    Try Again
-                </button>
-            </div>
-        </div>
-
-        <!-- Blog Grid -->
-        <!-- Blog Grid -->
-        <div 
-            x-show="!isLoading && !error && searchResults.length > 0" 
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-4"
-            x-transition:enter-end="opacity-100 translate-y-0"
-        >
-            <template x-for="post in searchResults" :key="post.title">
-                <article class="flex flex-col h-full bg-white/80 glass-panel rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:shadow-anita-100/50 hover:-translate-y-2 transition-all duration-300 group">
-                    
-                    <!-- 1. Thumbnail Link -->
-                    <a :href="getLink(post.slug)" class="block h-48 overflow-hidden relative bg-slate-100">
-                        <template x-if="post.thumb">
-                            <img :src="post.thumb" :alt="post.title" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        </template>
-                        <template x-if="!post.thumb">
-                            <div class="w-full h-full flex items-center justify-center text-anita-300 bg-slate-50">
-                                <i class="fas fa-image text-4xl opacity-50"></i>
-                            </div>
-                        </template>
-                    </a>
-
-                    <!-- Content -->
-                    <div class="flex-1 p-6 flex flex-col">
-                        <!-- Date -->
-                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">
-                            <i class="far fa-calendar-alt"></i>
-                            <span x-text="new Date(post.updated).toLocaleDateString()"></span>
-                        </div>
-
-                        <!-- 2. Title Link -->
-                        <a :href="getLink(post.slug)" class="block">
-                            <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-anita-600 transition-colors leading-tight" x-text="post.title"></h3>
-                        </a>
-                        
-                        <!-- Excerpt / Description -->
-                        <p class="text-slate-600 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
-                            <span x-text="post.custom.description || 'Click to read more about this topic...'"></span>
-                        </p>
-
-                        <!-- Author & Footer -->
-                        <div class="pt-4 mt-auto border-t border-slate-100 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-anita-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold shadow-inner">
-                                    <span x-text="(post.author || 'A').charAt(0).toUpperCase()"></span>
-                                </div>
-                                <span class="text-xs font-bold text-slate-700" x-text="post.author || 'Admin'"></span>
-                            </div>
-                            
-                            <!-- 3. Read More Link -->
-                            <a :href="getLink(post.slug)" class="text-anita-500 hover:text-anita-700 text-sm font-bold group-hover:translate-x-1 transition-transform">
-                                Read <i class="fas fa-arrow-right text-xs ml-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-            </template>
-        </div>
-
-        <!-- Empty State -->
-        <div x-show="!isLoading && !error && searchResults.length === 0" x-cloak class="text-center py-20 col-span-full">
-            <div class="text-slate-400">
-                <i class="fas fa-feather text-6xl mb-6 opacity-30"></i>
-                <h3 class="text-xl font-bold text-slate-600 mb-2">No posts found</h3>
-                <p class="text-slate-500">We couldn't find any content matching your criteria.</p>
-                <button @click="clear(); search()" x-show="searchQuery" class="mt-4 text-anita-500 font-bold hover:underline">Clear Filters</button>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-900 relative z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-4 gap-8 mb-12">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4 text-white">
-                        <img class="w-8 h-8 rounded-full" src="/media/anita.webp" alt="Logo" onerror="this.style.display='none'"/>
-                        <span class="font-bold text-xl">Anita CMS</span>
-                    </div>
-                    <p class="text-sm mb-4 max-w-xs">
-                        A lightweight, AI-assisted, hybrid content management system built for speed and creative freedom.
-                    </p>
-                    <div class="flex gap-4">
-                        <a class="hover:text-white transition" href="#"><i class="fab fa-github"></i></a>
-                        <a class="hover:text-white transition" href="#"><i class="fab fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4">Resources</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a class="hover:text-anita-400 transition" href="#">Documentation</a></li>
-                        <li><a class="hover:text-anita-400 transition" href="#">API Reference</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-4">Hugs Accepted</h4>
-                    <pre class="text-xs font-mono text-anita-300 bg-slate-900 p-2 rounded border border-slate-800 inline-block">
- ╭──────────────────╮
- │  (.づ◡﹏◡)づ.    │
- ╰──────────────────╯
-                    </pre>
-                </div>
-            </div>
-            <div class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-xs">© 2025 Anita CMS. Licensed under AGPL-3.0.</p>
-                <p class="text-xs mt-2 md:mt-0">Made with 💙 and Caffeine.</p>
-            </div>
-        </div>
-    </footer>
-</div>
+        <script>
+
+        tailwind.config = {
+
+            theme: {
+
+                extend: {
+
+                    fontFamily: {
+
+                        sans: ['Nunito', 'sans-serif'],
+
+                    },
+
+                    colors: {
+
+                        anita: {
+
+                            50: '#f0f9ff',
+
+                            100: '#e0f2fe',
+
+                            200: '#bae6fd',
+
+                            300: '#7dd3fc',
+
+                            400: '#38bdf8',
+
+                            500: '#0ea5e9',
+
+                            600: '#0284c7',
+
+                            700: '#0369a1',
+
+                            800: '#075985',
+
+                            900: '#0c4a6e',
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+
+
+<div>
+
+
+
+<!-- Background Blobs -->
+
+    <div class="blob bg-anita-300 w-96 h-96 top-0 left-0 -translate-x-1/2 -translate-y-1/2 animate-float"></div>
+
+    <div class="blob bg-purple-300 w-80 h-80 bottom-0 right-0 translate-x-1/3 translate-y-1/3 animate-float-delayed"></div>
+
+
+
+    <!-- Navigation -->
+
+    <nav class="fixed w-full z-50 glass-panel border-b border-gray-200/50 transition-all duration-300" id="navbar">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="flex justify-between items-center h-20">
+
+                <!-- Logo -->
+
+                <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer group">
+
+                    <img alt="Anita Logo" class="h-10 w-10 rounded-full border-2 border-anita-400 group-hover:scale-105 transition-transform" src="/media/anita.webp" onerror="this.src='https://ui-avatars.com/api/?name=Anita&background=0ea5e9&color=fff'"/>
+
+                    <span class="font-bold text-2xl text-anita-600 tracking-tight">Anita CMS</span>
+
+                </a>
+
+                <!-- Desktop Menu -->
+
+                <div class="hidden md:flex items-center space-x-8">
+
+                    <a class="text-gray-600 hover:text-anita-600 font-semibold transition" href="/">Home</a>
+
+                    <a class="text-anita-600 font-bold transition" href="#">Blog</a>
+
+                    <a class="text-gray-600 hover:text-anita-600 font-semibold transition" href="/#docs">Docs</a>
+
+                    <a class="bg-anita-500 hover:bg-anita-600 text-white px-5 py-2.5 rounded-full font-bold shadow-lg shadow-anita-200 transition transform hover:-translate-y-1" href="https://github.com/Iteranya/anita-cms" target="_blank">
+
+                        <i class="fab fa-github mr-2"></i> Get Anita
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- Header Section -->
+
+    <header class="pt-32 pb-16 px-4">
+
+        <div class="max-w-7xl mx-auto text-center">
+
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
+
+                Latest <span class="text-transparent bg-clip-text bg-gradient-to-r from-anita-500 to-purple-600">Updates & Thoughts</span>
+
+            </h1>
+
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+
+                Explore tutorials, release notes, and deep dives into the lightweight world of Anita CMS.
+
+            </p>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- Main Content with Alpine Data Binding -->
+
+    <main 
+
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 min-h-[60vh]"
+
+        x-data="blog_component(['any:read', 'main:blog'])"
+
+    >
+
+        
+
+        <!-- Search/Filter Input (Optional Addition) -->
+
+        <div class="max-w-md mx-auto mb-12 relative">
+
+            <input 
+
+                x-model="searchQuery" 
+
+                @keydown.enter="search()"
+
+                type="text" 
+
+                placeholder="Filter by label (e.g. 'tutorial')..." 
+
+                class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-anita-500 focus:ring-2 focus:ring-anita-200 outline-none transition shadow-sm bg-white/80 backdrop-blur"
+
+            >
+
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+        </div>
+
+
+
+        <!-- Loading State -->
+
+        <div x-show="isLoading" class="flex flex-col justify-center items-center py-20" x-transition>
+
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-anita-500 mb-4"></div>
+
+            <p class="text-anita-600 font-semibold animate-pulse">Fetching updates...</p>
+
+        </div>
+
+
+
+        <!-- Error State -->
+
+        <div x-show="error" x-cloak class="text-center py-20">
+
+            <div class="inline-block p-6 rounded-2xl bg-red-50 text-red-600 border border-red-100 shadow-sm">
+
+                <i class="fas fa-exclamation-circle mb-3 text-3xl"></i>
+
+                <p class="font-medium" x-text="error"></p>
+
+                <button @click="search()" class="mt-4 px-4 py-2 bg-white border border-red-200 rounded-lg text-sm font-bold hover:bg-red-50 transition shadow-sm">
+
+                    Try Again
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Blog Grid -->
+
+        <!-- Blog Grid -->
+
+        <div 
+
+            x-show="!isLoading && !error && searchResults.length > 0" 
+
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+
+            x-transition:enter="transition ease-out duration-300"
+
+            x-transition:enter-start="opacity-0 translate-y-4"
+
+            x-transition:enter-end="opacity-100 translate-y-0"
+
+        >
+
+            <template x-for="post in searchResults" :key="post.title">
+
+                <article class="flex flex-col h-full bg-white/80 glass-panel rounded-2xl overflow-hidden border border-white/50 shadow-sm hover:shadow-xl hover:shadow-anita-100/50 hover:-translate-y-2 transition-all duration-300 group">
+
+                    
+
+                    <!-- 1. Thumbnail Link -->
+
+                    <a :href="getLink(post.slug)" class="block h-48 overflow-hidden relative bg-slate-100">
+
+                        <template x-if="post.thumb">
+
+                            <img :src="post.thumb" :alt="post.title" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+
+                        </template>
+
+                        <template x-if="!post.thumb">
+
+                            <div class="w-full h-full flex items-center justify-center text-anita-300 bg-slate-50">
+
+                                <i class="fas fa-image text-4xl opacity-50"></i>
+
+                            </div>
+
+                        </template>
+
+                    </a>
+
+
+
+                    <!-- Content -->
+
+                    <div class="flex-1 p-6 flex flex-col">
+
+                        <!-- Date -->
+
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">
+
+                            <i class="far fa-calendar-alt"></i>
+
+                            <span x-text="new Date(post.updated).toLocaleDateString()"></span>
+
+                        </div>
+
+
+
+                        <!-- 2. Title Link -->
+
+                        <a :href="getLink(post.slug)" class="block">
+
+                            <h3 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-anita-600 transition-colors leading-tight" x-text="post.title"></h3>
+
+                        </a>
+
+                        
+
+                        <!-- Excerpt / Description -->
+
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
+
+                            <span x-text="post.custom.description || 'Click to read more about this topic...'"></span>
+
+                        </p>
+
+
+
+                        <!-- Author & Footer -->
+
+                        <div class="pt-4 mt-auto border-t border-slate-100 flex items-center justify-between">
+
+                            <div class="flex items-center gap-2">
+
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-anita-400 to-purple-400 flex items-center justify-center text-white text-xs font-bold shadow-inner">
+
+                                    <span x-text="(post.author || 'A').charAt(0).toUpperCase()"></span>
+
+                                </div>
+
+                                <span class="text-xs font-bold text-slate-700" x-text="post.author || 'Anita'"></span>
+
+                            </div>
+
+                            
+
+                            <!-- 3. Read More Link -->
+
+                            <a :href="getLink(post.slug)" class="text-anita-500 hover:text-anita-700 text-sm font-bold group-hover:translate-x-1 transition-transform">
+
+                                Read <i class="fas fa-arrow-right text-xs ml-1"></i>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </template>
+
+        </div>
+
+
+
+        <!-- Empty State -->
+
+        <div x-show="!isLoading && !error && searchResults.length === 0" x-cloak class="text-center py-20 col-span-full">
+
+            <div class="text-slate-400">
+
+                <i class="fas fa-feather text-6xl mb-6 opacity-30"></i>
+
+                <h3 class="text-xl font-bold text-slate-600 mb-2">No posts found</h3>
+
+                <p class="text-slate-500">We couldn't find any content matching your criteria.</p>
+
+                <button @click="clear(); search()" x-show="searchQuery" class="mt-4 text-anita-500 font-bold hover:underline">Clear Filters</button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- Footer -->
+
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-900 relative z-10">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+
+                <div class="col-span-1 md:col-span-2">
+
+                    <div class="flex items-center gap-2 mb-4 text-white">
+
+                        <img class="w-8 h-8 rounded-full" src="/media/anita.webp" alt="Logo" onerror="this.style.display='none'"/>
+
+                        <span class="font-bold text-xl">Anita CMS</span>
+
+                    </div>
+
+                    <p class="text-sm mb-4 max-w-xs">
+
+                        A lightweight, AI-assisted, hybrid content management system built for speed and creative freedom.
+
+                    </p>
+
+                    <div class="flex gap-4">
+
+                        <a class="hover:text-white transition" href="#"><i class="fab fa-github"></i></a>
+
+                        <a class="hover:text-white transition" href="#"><i class="fab fa-twitter"></i></a>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <h4 class="text-white font-bold mb-4">Resources</h4>
+
+                    <ul class="space-y-2 text-sm">
+
+                        <li><a class="hover:text-anita-400 transition" href="#">Documentation</a></li>
+
+                        <li><a class="hover:text-anita-400 transition" href="#">API Reference</a></li>
+
+                    </ul>
+
+                </div>
+
+                <div>
+
+                    <h4 class="text-white font-bold mb-4">Hugs Accepted</h4>
+
+                    <pre class="text-xs font-mono text-anita-300 bg-slate-900 p-2 rounded border border-slate-800 inline-block">
+
+ ╭──────────────────╮
+
+ │  (.づ◡﹏◡)づ.    │
+
+ ╰──────────────────╯
+
+                    </pre>
+
+                </div>
+
+            </div>
+
+            <div class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center">
+
+                <p class="text-xs">© 2025 Anita CMS. Licensed under AGPL-3.0.</p>
+
+                <p class="text-xs mt-2 md:mt-0">Made with 💙 and Caffeine.</p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</div>
+
 
         
         <script type="module" src="/static/hikarin/main.js"></script>

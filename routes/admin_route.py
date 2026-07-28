@@ -14,8 +14,8 @@ from services.users import UserService
 from src.dependencies import optional_user
 from src import dependencies as dep
 
-router = APIRouter(tags=["Admin"])
-ADMIN_DIR = "static/admin"
+router = APIRouter(tags=["Anita"])
+ADMIN_DIR = "static/anita"
 
 
 def get_page_service(db: Session = Depends(get_db)) -> PageService:
@@ -54,12 +54,12 @@ def render_admin_page(view_slug: str) -> HTMLResponse:
     return HTMLResponse(html)
 
 
-@router.get("/admin")
+@router.get("/anita")
 async def admin_root():
-    return RedirectResponse("/admin/dashboard")
+    return RedirectResponse("/anita/dashboard")
 
 
-@router.get("/admin/{slug}")
+@router.get("/anita/{slug}")
 async def admin_page(
     slug: str,
     request: Request,
@@ -78,7 +78,7 @@ async def admin_page(
     raise HTTPException(status_code=404, detail="Content not available")
 
 
-@router.get("/admin/preview/{slug}", response_class=HTMLResponse)
+@router.get("/anita/preview/{slug}", response_class=HTMLResponse)
 def serve_any_post(
     slug: str,
     page_service: PageService = Depends(get_page_service),

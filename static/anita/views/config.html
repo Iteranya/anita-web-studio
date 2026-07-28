@@ -1,0 +1,125 @@
+<h1 class="text-xl font-bold mb-6">System Configuration</h1>
+
+<form id="cfg-form" class="space-y-8 max-w-2xl" onsubmit="return false">
+
+  <!-- PocketBase -->
+  <fieldset class="border rounded-lg p-4">
+    <legend class="text-sm font-bold text-gray-700 px-2">PocketBase</legend>
+    <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">PB URL</label>
+        <input id="cfg-pb-url" type="url" class="w-full border rounded px-3 py-2 text-sm" placeholder="https://db.example.com/">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Admin Email</label>
+          <input id="cfg-pb-email" type="email" class="w-full border rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Admin Password</label>
+          <input id="cfg-pb-password" type="password" class="w-full border rounded px-3 py-2 text-sm" placeholder="Kosongkan = tidak diubah">
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Midtrans -->
+    <!-- Midtrans -->
+  <fieldset class="border rounded-lg p-4">
+    <legend class="text-sm font-bold text-gray-700 px-2">Midtrans</legend>
+    <div class="grid grid-cols-1 gap-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Server Key</label>
+          <input id="cfg-midtrans-key" type="text" class="w-full border rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Merchant ID</label>
+          <input id="cfg-midtrans-merchant" type="text" class="w-full border rounded px-3 py-2 text-sm">
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <label class="flex items-center gap-2 text-sm">
+          <input id="cfg-midtrans-production" type="checkbox"> Production Mode
+        </label>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Notification URL</label>
+        <input id="cfg-midtrans-notify" type="url" class="w-full border rounded px-3 py-2 text-sm" placeholder="https://...">
+      </div>
+
+      <!-- Payment Pipeline Configuration -->
+      <hr class="my-1 border-gray-200">
+      <p class="text-xs text-gray-500 -mb-1">Payment Pipeline</p>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Order ID Prefix</label>
+        <input id="cfg-midtrans-order-prefix" type="text" class="w-full border rounded px-3 py-2 text-sm" placeholder="ORD-">
+        <p class="text-xs text-gray-400 mt-1">e.g. ORD-, ACCA-, WDY-</p>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">User Collection</label>
+          <input id="cfg-midtrans-user-collection" type="text" class="w-full border rounded px-3 py-2 text-sm" placeholder="users">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Transaction Collection</label>
+          <input id="cfg-midtrans-txn-collection" type="text" class="w-full border rounded px-3 py-2 text-sm" placeholder="transactions">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Registration Collection</label>
+          <input id="cfg-midtrans-reg-collection" type="text" class="w-full border rounded px-3 py-2 text-sm" placeholder="registrations">
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+
+  <!-- AI -->
+  <fieldset class="border rounded-lg p-4">
+    <legend class="text-sm font-bold text-gray-700 px-2">AI</legend>
+    <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">API Endpoint</label>
+        <input id="cfg-ai-endpoint" type="url" class="w-full border rounded px-3 py-2 text-sm">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Base LLM</label>
+          <input id="cfg-base-llm" type="text" class="w-full border rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Temperature</label>
+          <input id="cfg-temperature" type="number" step="0.1" min="0" max="2" class="w-full border rounded px-3 py-2 text-sm">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">API Key</label>
+        <input id="cfg-ai-key" type="password" class="w-full border rounded px-3 py-2 text-sm" placeholder="Kosongkan = tidak diubah">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">System Note</label>
+        <textarea id="cfg-system-note" rows="3" class="w-full border rounded px-3 py-2 text-sm"></textarea>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Theme -->
+  <fieldset class="border rounded-lg p-4">
+    <legend class="text-sm font-bold text-gray-700 px-2">Tampilan</legend>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Theme</label>
+      <select id="cfg-theme" class="w-full border rounded px-3 py-2 text-sm">
+        <option value="default">Default</option>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </div>
+  </fieldset>
+
+  <button id="cfg-save" type="button"
+          class="bg-slate-900 text-white px-6 py-2 rounded text-sm hover:bg-slate-800 transition">
+    💾 Simpan Konfigurasi
+  </button>
+</form>
+
+<script src="/static/anita/js/configManager.js"></script>

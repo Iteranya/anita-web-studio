@@ -121,6 +121,66 @@ def list_pages(
 
     return accessible_pages
 
+@router.get("/list/markdown", response_model=List[schemas.PageData])
+def list_markdown_pages(
+    skip: int = 0,
+    limit: int = 100,
+    page_service: PageService = Depends(get_page_service),
+    user_service: UserService = Depends(get_user_service),
+    user: Optional[CurrentUser] = Depends(dep.optional_user),
+):
+    all_pages = page_service.list_page_by_type("markdown", skip=skip, limit=limit)
+
+    user_permissions = []
+    user_role = "anon"
+    if user:
+        user_permissions = user_service.get_user_permissions(user.username)
+        user_role = user.role
+
+    if "*" in user_permissions or "page:read" in user_permissions:
+        return all_pages
+
+    accessible_pages = []
+    for page in all_pages:
+        label_names = get_label_names(page.labels)
+        is_public = "any:read" in label_names
+        role_allowed = f"{user_role}:read" in label_names
+        is_author = user and page.author == user.username
+        if is_public or role_allowed or is_author:
+            accessible_pages.append(page)
+
+    return accessible_pages
+
+@router.get("/list/html", response_model=List[schemas.PageData])
+def list_markdown_pages(
+    skip: int = 0,
+    limit: int = 100,
+    page_service: PageService = Depends(get_page_service),
+    user_service: UserService = Depends(get_user_service),
+    user: Optional[CurrentUser] = Depends(dep.optional_user),
+):
+    all_pages = page_service.list_page_by_type("html", skip=skip, limit=limit)
+
+    user_permissions = []
+    user_role = "anon"
+    if user:
+        user_permissions = user_service.get_user_permissions(user.username)
+        user_role = user.role
+
+    if "*" in user_permissions or "page:read" in user_permissions:
+        return all_pages
+
+    accessible_pages = []
+    for page in all_pages:
+        label_names = get_label_names(page.labels)
+        is_public = "any:read" in label_names
+        role_allowed = f"{user_role}:read" in label_names
+        is_author = user and page.author == user.username
+        if is_public or role_allowed or is_author:
+            accessible_pages.append(page)
+
+    return accessible_pages
+
 
 @router.get("/{slug}", response_model=schemas.Page)
 def get_page(

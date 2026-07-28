@@ -1,12 +1,14 @@
 import json
 from typing import List, Optional, Any
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from jinja2 import Environment, BaseLoader
 
 from data.database import get_db
 from data import schemas
+from services.config import ConfigService
 from services.pages import PageService
 
 # --- Dependency Setup ---
@@ -66,15 +68,21 @@ def api_get_any_page(main:str, slug: str, page_service: PageService = Depends(ge
 
     return page
 
-@router.get("/search", response_model=list[schemas.PageData])
-def api_search_pages_by_labels(
-    labels: Optional[List[str]] = Query(None, description="List of labels to filter pages by"),
-    page_service: PageService = Depends(get_page_service),
-):
-    search_labels = labels if labels is not None else []
-    search_labels.append("any:read")
-    pages = page_service.get_pages_by_labels(search_labels)
-    return pages
+@router.get("/favicon.ico", include_in_schema=False)
+async def get_favicon():
+    return FileResponse("static/assets/favicon.ico", media_type="image/x-icon")
+
+
+@router.get("/quiz", response_class=HTMLResponse)
+def serve_quiz_page(request: Request):
+    """Serves quiz page with PocketBase URL injected from CMS config."""
+    service = ConfigService(next(get_db()))
+    pb_url = service.get_setting_value("pb_url") or "http://localhost:8090"
+    templates = Jinja2Templates(directory="static/competition")
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "api_base": pb_url}
+    )
 
 # ==========================================
 # 🚀 DYNAMIC ROUTES
@@ -94,8 +102,31 @@ def serve_top_level_page(
 
     if not required_labels.issubset(label_names):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
+    
+    # 3. If it's already static HTML, return it
+    if page.type == 'html':
+        return HTMLResponse(content=page.html, status_code=200)
 
-    return HTMLResponse(content=page.html, status_code=200)
+    # 4. Handle Markdown/Dynamic Pages (SSR)
+    # Fetch the template
+    markdown_template = page_service.get_first_page_by_labels(['sys:template', 'any:read'])
+    if not markdown_template:
+        raise HTTPException(status_code=500, detail="System Error: Markdown template missing.")
+    
+    context = {
+        "title": page.title,
+        "markdown_content": page.markdown,
+        "author": page.author if hasattr(page, 'author') else "Unknown",
+        "published": page.created if hasattr(page, 'created_at') else "",
+        "updated": page.updated if hasattr(page, 'updated_at') else "",
+        "description": page.content if hasattr(page, 'description') else "",
+        "thumb": page.thumb if hasattr(page, 'thumbnail') else ""
+    }
+
+    # Render on Server
+    rendered_html = render_db_template(markdown_template.html, context)
+    
+    return HTMLResponse(content=rendered_html, status_code=200)
 
     
 @router.get("/{main}/{slug}", response_class=HTMLResponse)
@@ -140,3 +171,5 @@ def serve_any_post(slug: str, main:str, page_service: PageService = Depends(get_
     rendered_html = render_db_template(markdown_template.html, context)
     
     return HTMLResponse(content=rendered_html, status_code=200)
+
+

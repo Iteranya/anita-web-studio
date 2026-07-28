@@ -22,6 +22,10 @@ class PageService:
             )
         return page
 
+    def list_page_by_type(self, type:str, skip: int, limit: int) -> list[models.Page]:
+        """Gets a list of all pages."""
+        return crud.list_pages_by_type(self.db, type=type, skip=skip, limit=limit)
+
     def get_all_pages(self, skip: int, limit: int) -> list[models.Page]:
         """Gets a list of all pages."""
         return crud.list_pages(self.db, skip=skip, limit=limit)
@@ -31,7 +35,7 @@ class PageService:
         Creates a new page after performing business logic checks.
         """
         # 1. Check for forbidden slugs.
-        forbidden_slugs = {"admin", "api", "login", "static","blog"}
+        forbidden_slugs = {"admin", "api", "login", "static","blog", "anita"}
         if page_data.slug in forbidden_slugs:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anita CMS — Admin</title>
+
+  <!-- Tailwind + Fonts -->
+  <script src="/static/hikarin/lib/tailwind.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Nunito', 'sans-serif'] },
+          colors: {
+            anita: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Active sidebar link */
+    .nav-active {
+      background-color: #0284c7 !important;
+      color: #fff !important;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    /* Sidebar transition */
+    #sidebar { transition: width 0.3s ease; }
+    /* Toast animation */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(0)  scale(1); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(40px); }
+    }
+    .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+    .toast-exit  { animation: slideOut 0.2s ease-in forwards; }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800 font-sans h-screen overflow-hidden flex">
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SIDEBAR                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <aside id="sidebar" class="bg-slate-900 text-white flex flex-col flex-shrink-0 w-64 transition-all duration-300 z-20">
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950 gap-3">
+      <img src="/media/anita.webp" class="h-10 w-auto object-contain" alt="Anita">
+      <span id="sidebar-brand" class="font-bold text-lg tracking-wide">Anita CMS</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
+      <a href="/anita/dashboard" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-dashboard">
+        <i class="fas fa-home w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Dashboard</span>
+      </a>
+      <a href="/anita/page" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-page">
+        <i class="fas fa-layer-group w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Pages</span>
+      </a>
+      <a href="/anita/structure" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-structure">
+        <i class="fas fa-sitemap w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Structure</span>
+      </a>
+      <a href="/anita/media" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-media">
+        <i class="fas fa-images w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Media</span>
+      </a>
+
+      <div class="pt-4 pb-2 sidebar-label">
+        <p class="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">System</p>
+      </div>
+
+      <a href="/anita/users" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-users">
+        <i class="fas fa-users-cog w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Users</span>
+      </a>
+      <a href="/anita/config" class="flex items-center px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors nav-config">
+        <i class="fas fa-robot w-6 text-center text-lg"></i>
+        <span class="ml-3 font-medium whitespace-nowrap sidebar-label">Config</span>
+      </a>
+    </nav>
+
+    <!-- Collapse button -->
+    <button id="sidebar-toggle" class="p-4 bg-slate-950 text-slate-500 hover:text-white border-t border-slate-800 transition">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  CONTENT                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <main id="app-content" class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <!-- VIEW_CONTENT -->
+  </main>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  TOAST CONTAINER                            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SCRIPTS                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Sidebar toggle + active state -->
+  <script>
+    (function () {
+      // Highlight active nav link
+      var activeTab = '<!-- ACTIVE_TAB -->';
+      var link = document.querySelector('.nav-' + activeTab);
+      if (link) link.classList.add('nav-active');
+
+      // Sidebar collapse
+      var sidebar = document.getElementById('sidebar');
+      var labels = document.querySelectorAll('.sidebar-label');
+      var brand = document.getElementById('sidebar-brand');
+      var toggle = document.getElementById('sidebar-toggle');
+      var icon = toggle ? toggle.querySelector('i') : null;
+      var open = true;
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          open = !open;
+          sidebar.style.width = open ? '16rem' : '5rem';
+          if (icon) {
+            icon.className = 'fas ' + (open ? 'fa-chevron-left' : 'fa-chevron-right');
+          }
+          if (brand) brand.style.display = open ? '' : 'none';
+          labels.forEach(function (l) { l.style.display = open ? '' : 'none'; });
+        });
+      }
+    })();
+  </script>
+
+  <!-- Toast notification system (listens for CustomEvent 'anita:toast') -->
+  <script>
+    (function () {
+      var container = document.getElementById('toast-container');
+      if (!container) return;
+
+      window.addEventListener('anita:toast', function (e) {
+        var detail = e.detail || {};
+        var type = detail.type || 'info';
+        var msg = detail.message || '';
+
+        var colors = {
+          success: { bg: 'bg-green-500', icon: 'fa-check' },
+          error:   { bg: 'bg-red-500',   icon: 'fa-exclamation-triangle' },
+          info:    { bg: 'bg-blue-500',  icon: 'fa-info-circle' }
+        };
+        var c = colors[type] || colors.info;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast-enter pointer-events-auto w-80 shadow-2xl rounded-xl overflow-hidden border border-slate-100 flex items-stretch bg-white';
+
+        var strip = document.createElement('div');
+        strip.className = c.bg + ' text-white w-12 flex items-center justify-center flex-shrink-0';
+        strip.innerHTML = '<i class="fas ' + c.icon + ' text-lg"></i>';
+
+        var body = document.createElement('div');
+        body.className = 'flex-1 p-3 bg-white/95 backdrop-blur-sm';
+
+        var title = document.createElement('h4');
+        title.className = 'text-sm font-bold text-slate-800';
+        title.textContent = type === 'success' ? 'Sukses' : (type === 'error' ? 'Error' : 'Info');
+
+        var p = document.createElement('p');
+        p.className = 'text-xs text-slate-500 mt-1 leading-relaxed';
+        p.textContent = msg;
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-xs';
+        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        closeBtn.onclick = function () { removeToast(toast); };
+
+        body.style.position = 'relative';
+        body.appendChild(title);
+        body.appendChild(p);
+        body.appendChild(closeBtn);
+
+        toast.appendChild(strip);
+        toast.appendChild(body);
+        container.appendChild(toast);
+
+        // Auto-remove after 5s
+        setTimeout(function () { removeToast(toast); }, 5000);
+      });
+
+      function removeToast(el) {
+        el.classList.add('toast-exit');
+        setTimeout(function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 200);
+      }
+    })();
+  </script>
+
+</body>
+</html>
+
+

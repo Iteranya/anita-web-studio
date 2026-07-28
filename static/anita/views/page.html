@@ -1,0 +1,66 @@
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-xl font-bold">Pages</h1>
+  <div class="flex gap-2">
+    <button data-pm-filter="all"      class="px-3 py-1 text-sm border rounded active">Semua</button>
+    <button data-pm-filter="markdown" class="px-3 py-1 text-sm border rounded">Markdown</button>
+    <button data-pm-filter="html"     class="px-3 py-1 text-sm border rounded">HTML</button>
+  </div>
+  <button id="pm-new-page" class="bg-cyan-500 text-white px-4 py-2 rounded text-sm hover:bg-cyan-600">
+    + Halaman Baru
+  </button>
+</div>
+
+<table class="w-full bg-white rounded-lg shadow">
+  <thead>
+    <tr class="border-b text-left text-xs text-gray-500 uppercase">
+      <th class="p-3 w-4"></th>
+      <th class="p-3">Judul / Slug</th>
+      <th class="p-3">Tipe</th>
+      <th class="p-3">Author</th>
+      <th class="p-3 text-right">Aksi</th>
+    </tr>
+  </thead>
+  <tbody id="pm-table-body"></tbody>
+</table>
+
+<!-- Create Modal -->
+<div id="pm-create-modal" class="hidden modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl w-96 p-6">
+    <h2 class="text-lg font-bold mb-4">Buat Halaman Baru</h2>
+    <form id="pm-create-form" class="space-y-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600">Judul</label>
+        <input id="pm-create-title" type="text" required class="w-full border rounded px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600">Slug (opsional)</label>
+        <input id="pm-create-slug" type="text" class="w-full border rounded px-3 py-2 text-sm" placeholder="auto-dari-judul">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600">Tipe</label>
+        <select id="pm-create-type" class="w-full border rounded px-3 py-2 text-sm">
+          <option value="markdown">Markdown</option>
+          <option value="html">HTML</option>
+        </select>
+      </div>
+      <div class="flex gap-2 justify-end pt-2">
+        <button type="button" id="pm-cancel-create" class="px-4 py-2 text-sm border rounded">Batal</button>
+        <button type="submit" class="px-4 py-2 text-sm bg-cyan-500 text-white rounded">Buat</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="pm-delete-modal" class="hidden modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl w-80 p-6">
+    <h2 class="text-lg font-bold mb-2">Hapus Halaman?</h2>
+    <p class="text-sm text-gray-500 mb-4">Halaman "<span id="pm-delete-title"></span>" akan dihapus permanen.</p>
+    <div class="flex gap-2 justify-end">
+      <button data-pm-close="#pm-delete-modal" class="px-4 py-2 text-sm border rounded">Batal</button>
+      <button id="pm-delete" class="px-4 py-2 text-sm bg-red-500 text-white rounded">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/anita/js/pageManager.js"></script>

@@ -1,0 +1,73 @@
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-xl font-bold">Users</h1>
+  <button id="um-new-user" class="bg-cyan-500 text-white px-4 py-2 rounded text-sm hover:bg-cyan-600">
+    + Admin Baru
+  </button>
+</div>
+
+<table class="w-full bg-white rounded-lg shadow">
+  <thead>
+    <tr class="border-b text-left text-xs text-gray-500 uppercase">
+      <th class="p-3">Username</th>
+      <th class="p-3">Display Name</th>
+      <th class="p-3">Role</th>
+      <th class="p-3 text-right">Aksi</th>
+    </tr>
+  </thead>
+  <tbody id="um-table-body"></tbody>
+</table>
+
+<!-- User Modal -->
+<div id="um-user-modal" class="hidden modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl w-96 p-6">
+    <h2 id="um-user-modal-title" class="text-lg font-bold mb-4">Buat Admin Baru</h2>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Username</label>
+        <input id="um-user-username" type="text" class="w-full border rounded px-3 py-2 text-sm" required>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Display Name</label>
+        <input id="um-user-display" type="text" class="w-full border rounded px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Password</label>
+        <input id="um-user-password" type="password" class="w-full border rounded px-3 py-2 text-sm" placeholder="Min 8 karakter">
+      </div>
+    </div>
+    <div class="flex gap-2 justify-end mt-4">
+      <button id="um-cancel-user" class="px-4 py-2 text-sm border rounded">Batal</button>
+      <button id="um-save-user" class="px-4 py-2 text-sm bg-cyan-500 text-white rounded">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Modal -->
+<div id="um-password-modal" class="hidden modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl w-80 p-6">
+    <h2 class="text-lg font-bold mb-2">Ganti Password</h2>
+    <p class="text-sm text-gray-500 mb-4">User: <strong id="um-pw-username"></strong></p>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Password Baru</label>
+      <input id="um-pw-new" type="password" class="w-full border rounded px-3 py-2 text-sm" placeholder="Min 8 karakter">
+    </div>
+    <div class="flex gap-2 justify-end mt-4">
+      <button id="um-cancel-password" class="px-4 py-2 text-sm border rounded">Batal</button>
+      <button id="um-save-password" class="px-4 py-2 text-sm bg-yellow-500 text-white rounded">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="um-delete-modal" class="hidden modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl w-80 p-6">
+    <h2 class="text-lg font-bold mb-2">Hapus User?</h2>
+    <p class="text-sm text-gray-500 mb-4">User "<strong id="um-delete-name"></strong>" akan dihapus permanen.</p>
+    <div class="flex gap-2 justify-end">
+      <button id="um-cancel-delete" class="px-4 py-2 text-sm border rounded">Batal</button>
+      <button id="um-confirm-delete" class="px-4 py-2 text-sm bg-red-500 text-white rounded">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/anita/js/userManager.js"></script>

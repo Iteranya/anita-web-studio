@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hikarin Raw Editor</title>
+    
+    <!-- CSS Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <!-- Main Application Logic -->
+    <script type="module" src="/static/raw/main.js"></script>
+
+    <style>
+        .ace_editor { font-family: 'JetBrains Mono', monospace !important; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 h-screen w-screen overflow-hidden">
+
+    <!-- 
+        ROOT COMPONENT 
+        - slug logic: one-liner to grab the last URL segment (e.g. /edit/my-page -> 'my-page')
+    -->
+    <div 
+        x-data="editorManager(window.location.pathname.replace(/\/+$/, '').split('/').pop() || 'index')" 
+        x-cloak
+        @mousemove.window="handleDrag" 
+        @mouseup.window="stopDrag"
+        class="flex flex-col h-full w-full"
+    >
+
+        <!-- TOOLBAR -->
+        <header class="h-14 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 shrink-0">
+            <!-- Left: Title & Info -->
+            <div class="flex items-center gap-4">
+                <div class="font-bold text-white tracking-wide">
+                    <i class="ri-code-s-slash-line text-blue-500 mr-1"></i>
+                    Hikarin<span class="text-blue-500">Raw</span>
+                </div>
+                <div class="h-4 w-px bg-gray-600"></div>
+                <div class="text-xs font-mono text-gray-400">
+                    /<span x-text="slug" class="text-blue-400"></span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono bg-gray-900 px-3 py-1 rounded border border-gray-700">
+                    <span class="w-2 h-2 rounded-full" 
+                          :class="{
+                              'bg-green-500': statusText === 'Saved' || statusText === 'Deployed',
+                              'bg-yellow-500': isProcessing,
+                              'bg-gray-500': statusText === 'Ready'
+                          }"></span>
+                    <span x-text="statusText"></span>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-3">
+                <button @click="togglePreview" class="p-2 hover:text-white transition-colors" :class="showPreview ? 'text-blue-400' : 'text-gray-400'">
+                    <i class="ri-layout-column-line text-lg"></i>
+                </button>
+                <div class="h-4 w-px bg-gray-600"></div>
+                <button @click="copyPrompt" class="hover:text-white text-sm flex items-center gap-2 px-2 transition-colors">
+                    <i class="ri-openai-fill"></i> <span class="hidden md:inline">Context</span>
+                </button>
+                <button @click="syncAndRender" :disabled="isProcessing" class="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded disabled:opacity-50 transition-colors">
+                    Save Draft
+                </button>
+                <button @click="deployHtml" :disabled="isProcessing" class="px-4 py-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded disabled:opacity-50 shadow-lg shadow-blue-900/20 transition-colors">
+                    Deploy
+                </button>
+            </div>
+        </header>
+
+        <!-- WORKSPACE -->
+        <main x-ref="workspaceContainer" class="flex-1 flex overflow-hidden relative">
+            
+            <!-- CODE PANE -->
+            <div class="relative flex flex-col bg-gray-900" :style="`width: ${showPreview ? leftWidth : 100}%`">
+                <div x-ref="mainEditor" class="absolute inset-0 w-full h-full"></div>
+            </div>
+
+            <!-- DRAGGER -->
+            <div x-show="showPreview" @mousedown="startDrag($event)"
+                class="w-1 bg-gray-800 hover:bg-blue-500 cursor-col-resize z-50 flex items-center justify-center transition-colors group">
+            </div>
+
+            <!-- PREVIEW PANE -->
+            <div x-show="showPreview" class="flex-1 relative bg-white">
+                <!-- Overlay to catch mouse events when dragging over iframe -->
+                <div x-show="dragType" class="absolute inset-0 z-50 bg-transparent cursor-col-resize"></div>
+                <iframe x-ref="previewFrame" class="w-full h-full border-0"></iframe>
+            </div>
+
+        </main>
+        
+        <!-- TOAST NOTIFICATIONS -->
+        <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+            <template x-for="note in $store.notifications.items" :key="note.id">
+                <div x-data="{ show: true }" x-show="show" x-transition.opacity.duration.300ms
+                    class="bg-gray-800 text-white px-4 py-3 rounded shadow-xl border-l-4 pointer-events-auto text-sm"
+                    :class="{
+                        'border-green-500': note.type === 'success',
+                        'border-red-500': note.type === 'error',
+                        'border-yellow-500': note.type === 'warning'
+                    }">
+                    <span x-text="note.message"></span>
+                </div>
+            </template>
+        </div>
+
+    </div>
+</body>
+</html>

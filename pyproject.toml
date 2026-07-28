@@ -22,6 +22,7 @@ dependencies = [
     "fastapi-csrf-protect==1.0.7",
     "greenlet==3.3.0",
     "h11==0.16.0",
+    "httpx>=0.28.1",
     "idna==3.10",
     "iniconfig==2.3.0",
     "itsdangerous==2.2.0",
